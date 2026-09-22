@@ -1,0 +1,13 @@
+{
+  "name": "gh200-cicd-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A tiny static site + test suite for practicing the GH-200 CI/CD cycle end-to-end.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

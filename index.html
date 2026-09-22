@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GH-200 CI/CD Lab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <span class="badge">🧪 GH-200 CI/CD Lab</span>
+      <h1>Laboratório de CI/CD com GitHub Actions</h1>
+      <p class="subtitle">
+        Este site existe só para uma coisa: você quebrar, consertar e observar
+        o pipeline em <code>.github/workflows/ci-cd.yml</code> rodando de verdade.
+      </p>
+    </header>
+
+    <section class="card countdown-card">
+      <h2>⏳ Contagem regressiva — Exame GH-200</h2>
+      <div id="countdown" class="countdown" aria-live="polite">
+        <div class="unit"><span id="cd-days">--</span><label>dias</label></div>
+        <div class="unit"><span id="cd-hours">--</span><label>horas</label></div>
+        <div class="unit"><span id="cd-minutes">--</span><label>min</label></div>
+        <div class="unit"><span id="cd-seconds">--</span><label>seg</label></div>
+      </div>
+      <p id="cd-status" class="status-label">IN PROGRESS</p>
+    </section>
+
+    <section class="card">
+      <h2>📊 Status simulado do pipeline</h2>
+      <p class="hint">Estático de propósito — sirva de "cards" para você editar durante os testes.</p>
+      <ul class="status-grid">
+        <li class="status-item ok">
+          <span class="dot"></span>
+          <div>
+            <strong>Build &amp; Test</strong>
+            <small>node --test tests/</small>
+          </div>
+        </li>
+        <li class="status-item ok">
+          <span class="dot"></span>
+          <div>
+            <strong>Deploy (GitHub Pages)</strong>
+            <small>actions/deploy-pages</small>
+          </div>
+        </li>
+        <li class="status-item warn">
+          <span class="dot"></span>
+          <div>
+            <strong>Matrix (a adicionar)</strong>
+            <small>experimente node 18 &amp; 20</small>
+          </div>
+        </li>
+        <li class="status-item idle">
+          <span class="dot"></span>
+          <div>
+            <strong>Environment protection</strong>
+            <small>experimente exigir aprovação</small>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🔢 Contador de cliques (usa src/utils.js)</h2>
+      <p class="hint">Só para ter algo interativo — a função <code>sum()</code> usada aqui é a mesma testada em <code>tests/utils.test.js</code>.</p>
+      <button id="click-btn" class="btn">Cliques: <span id="click-count">0</span></button>
+    </section>
+
+    <footer class="build-info">
+      <p>
+        Commit <code>{{COMMIT_SHA}}</code> · Build <code>#{{RUN_NUMBER}}</code> · Deployed <code>{{BUILD_DATE}}</code>
+      </p>
+      <p class="tiny">Se você está vendo <code>{{COMMIT_SHA}}</code> literalmente, é porque abriu o arquivo local — o job de deploy substitui isso automaticamente.</p>
+    </footer>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

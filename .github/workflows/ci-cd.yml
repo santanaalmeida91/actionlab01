@@ -1,0 +1,87 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Default: read-only GITHUB_TOKEN everywhere. The deploy job elevates
+# only what it needs, at the job level (least privilege — GH-200 Domain 5).
+permissions:
+  contents: read
+
+# 🧪 TRY THIS: uncomment this block to cancel superseded runs on the same
+# branch/PR instead of letting them pile up.
+# concurrency:
+#   group: ci-cd-${{ github.ref }}
+#   cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    # 🧪 TRY THIS: turn this into a matrix to test on multiple Node
+    # versions:
+    #   strategy:
+    #     matrix:
+    #       node-version: [18, 20]
+    # then reference it below as: node-version: ${{ matrix.node-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Lint — fail if any TODO markers slipped in
+        run: |
+          if grep -rln "TODO" --include="*.js" --include="*.html" --exclude-dir=node_modules . ; then
+            echo "::error::Found a TODO marker — resolve it before merging."
+            exit 1
+          fi
+          echo "No TODO markers found."
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: test
+    # Only deploy on a real push to main — never on a PR, never on a
+    # failed test job (the `needs: test` above already enforces that).
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject build info into index.html
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          BUILD_DATE="$(date -u '+%Y-%m-%d %H:%M UTC')"
+          sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/" index.html
+          sed -i "s/{{RUN_NUMBER}}/${{ github.run_number }}/" index.html
+          sed -i "s/{{BUILD_DATE}}/${BUILD_DATE}/" index.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
