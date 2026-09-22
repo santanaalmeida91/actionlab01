@@ -1,4 +1,4 @@
-![CI/CD Pipeline](https://github.com/anderson/gh200-cicd-lab/actions/workflows/ci-cd.yml/badge.svg?branch=main)
+![CI/CD Pipeline](https://github.com/santanaalmeida91/actionlab01/actions/workflows/ci-cd.yml/badge.svg?branch=main)
 
 # GH-200 CI/CD Lab
 
