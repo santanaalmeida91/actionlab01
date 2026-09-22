@@ -1,4 +1,11 @@
-![CI/CD Pipeline](https://github.com/santanaalmeida91/actionlab01/actions/workflows/ci-cd.yml/badge.svg?branch=main)
+[![CI/CD Pipeline](https://github.com/santanaalmeida91/actionlab01/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/santanaalmeida91/actionlab01/actions/workflows/ci-cd.yml)
+[![Deploy](https://img.shields.io/github/deployments/santanaalmeida91/actionlab01/github-pages?label=deploy)](https://github.com/santanaalmeida91/actionlab01/deployments)
+[![Website](https://img.shields.io/badge/site-online-brightgreen)](https://santanaalmeida91.github.io/actionlab01/)
+[![Last Commit](https://img.shields.io/github/last-commit/santanaalmeida91/actionlab01)](https://github.com/santanaalmeida91/actionlab01/commits/main)
+[![Repo Size](https://img.shields.io/github/repo-size/santanaalmeida91/actionlab01)](https://github.com/santanaalmeida91/actionlab01)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![No Dependencies](https://img.shields.io/badge/dependencies-none-blue)](https://github.com/santanaalmeida91/actionlab01)
+[![Made for](https://img.shields.io/badge/made%20for-GH--200%20exam-purple)](https://learn.microsoft.com/en-us/credentials/certifications/github-actions/)
 
 # GH-200 CI/CD Lab
 
