@@ -1,3 +1,5 @@
+![CI/CD Pipeline](https://github.com/anderson/gh200-cicd-lab/actions/workflows/ci-cd.yml/badge.svg?branch=main)
+
 # GH-200 CI/CD Lab
 
 Um site estático minúsculo (HTML/CSS/JS puro, zero dependências de build)
