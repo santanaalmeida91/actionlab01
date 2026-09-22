@@ -1,430 +1,92 @@
 # ============================================================
 # NOME DO WORKFLOW
 # ============================================================
-# Define o nome que aparecerá na aba "Actions" do GitHub.
 name: CI/CD Pipeline
 
 
 # ============================================================
-# TRIGGERS — QUANDO O WORKFLOW SERÁ EXECUTADO
+# TRIGGERS
 # ============================================================
 on:
-
-  # Executa o workflow quando houver um PUSH na branch main.
-  # Exemplo: git push origin main
   push:
-    branches: [main]
-
-  # Executa o workflow quando houver um Pull Request
-  # direcionado para a branch main.
-  #
-  # Isso permite validar o código antes que ele seja
-  # efetivamente incorporado à main.
+    branches: [main, 'release*']
   pull_request:
     branches: [main]
-
-  # Permite executar o workflow manualmente pela interface
-  # do GitHub em:
-  #
-  # Actions → CI/CD Pipeline → Run workflow
-  #
-  # Esse trigger também pode ser chamado de workflow_dispatch.
   workflow_dispatch:
 
 
 # ============================================================
-# PERMISSIONS — PERMISSÕES PADRÃO DO GITHUB_TOKEN
+# PERMISSIONS
 # ============================================================
-# Define as permissões padrão que serão concedidas ao
-# GITHUB_TOKEN utilizado pelo workflow.
-#
-# "contents: read" significa que o workflow pode apenas
-# ler o conteúdo do repositório.
-#
-# Isso segue o princípio de "Least Privilege":
-# conceder somente as permissões realmente necessárias.
 permissions:
   contents: read
 
 
 # ============================================================
-# CONCURRENCY — CONTROLE DE EXECUÇÕES SIMULTÂNEAS
+# CONCURRENCY
 # ============================================================
-# Este bloco está comentado.
-#
-# Se habilitado, evita que várias execuções antigas do
-# mesmo branch/PR continuem rodando simultaneamente.
-#
-# Exemplo:
-# Você faz 3 commits rapidamente.
-# Sem concurrency:
-#   Run 1 → continua
-#   Run 2 → continua
-#   Run 3 → continua
-#
-# Com cancel-in-progress:
-#   Run 1 → cancelada
-#   Run 2 → cancelada
-#   Run 3 → continua
-#
-# Útil para economizar recursos e evitar builds desnecessários.
-
-# concurrency:
-#   # Cria um grupo de execução baseado na referência
-#   # do GitHub, como branch ou Pull Request.
-#   group: ci-cd-${{ github.ref }}
-#
-#   # Cancela uma execução anterior quando uma nova
-#   # execução do mesmo grupo é iniciada.
-#   cancel-in-progress: true
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
 
 
-# ============================================================
-# JOBS — CONJUNTO DE TAREFAS DO WORKFLOW
-# ============================================================
-# Um workflow pode possuir um ou vários jobs.
-#
-# Neste caso temos:
-#
-#   test   → executa testes e validações
-#   deploy → publica o site no GitHub Pages
-#
 jobs:
-
 
   # ==========================================================
   # JOB 1 — TEST
   # ==========================================================
-  # Responsável por validar o código antes do deploy.
+  # Em vez de definir os steps aqui, este job apenas CHAMA
+  # o workflow reutilizável criado em reusable-test.yml.
+  #
+  # "uses:" aponta para o caminho do arquivo dentro do mesmo
+  # repositório. O GitHub executa a matrix (Node 18/20/24)
+  # como se fosse parte deste mesmo pipeline.
   test:
-
-    # Nome apresentado na interface do GitHub Actions.
     name: Build & Test
-
-    # Define o runner utilizado para executar esse job.
-    #
-    # ubuntu-latest significa que o GitHub fornecerá
-    # uma máquina virtual Linux com a versão mais recente
-    # suportada do Ubuntu.
-    runs-on: ubuntu-latest
-
-
-    # --------------------------------------------------------
-    # MATRIX — TESTAR EM MÚLTIPLAS VERSÕES
-    # --------------------------------------------------------
-    # Este exemplo está comentado.
-    #
-    # Uma matrix permite executar o mesmo job várias vezes
-    # utilizando diferentes combinações de parâmetros.
-    #
-    # Exemplo:
-    #
-    # strategy:
-    #   matrix:
-    #     node-version: [18, 20]
-    #
-    # Isso criaria duas execuções:
-    #
-    #   Node.js 18
-    #   Node.js 20
-    #
-    # E a versão poderia ser utilizada posteriormente como:
-    #
-    # node-version: ${{ matrix.node-version }}
-
-    # strategy:
-    #   matrix:
-    #     node-version: [18, 20]
-
-
-    # --------------------------------------------------------
-    # STEPS — PASSOS EXECUTADOS PELO JOB
-    # --------------------------------------------------------
-    steps:
-
-
-      # ------------------------------------------------------
-      # CHECKOUT DO CÓDIGO
-      # ------------------------------------------------------
-      # Baixa/clona o código do repositório para o runner.
-      #
-      # Sem esse passo, o runner não teria os arquivos do
-      # projeto disponíveis para executar os comandos.
-      - name: Checkout
-        uses: actions/checkout@v4
-
-
-      # ------------------------------------------------------
-      # CONFIGURAÇÃO DO NODE.JS
-      # ------------------------------------------------------
-      # Instala/configura o Node.js no ambiente do runner.
-      #
-      # Neste caso estamos utilizando a versão 20.
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-
-      # ------------------------------------------------------
-      # TESTES UNITÁRIOS
-      # ------------------------------------------------------
-      # Executa o comando:
-      #
-      # npm test
-      #
-      # Normalmente esse comando executa os testes definidos
-      # no package.json.
-      #
-      # Se o comando retornar código diferente de 0,
-      # o step falha e, consequentemente, o job falha.
-      - name: Run unit tests
-        run: npm test
-
-
-      # ------------------------------------------------------
-      # LINT / VALIDAÇÃO DE TODO
-      # ------------------------------------------------------
-      # Procura pelos marcadores "TODO" nos arquivos JavaScript
-      # e HTML do projeto.
-      #
-      # A ideia é impedir que código ainda marcado como
-      # pendente seja incorporado ao projeto.
-      - name: Lint — fail if any TODO markers slipped in
-        run: |
-
-          # Procura por "TODO" recursivamente.
-          #
-          # -r  → pesquisa recursivamente
-          # -l  → mostra apenas o nome dos arquivos encontrados
-          #
-          # --include limita a busca para arquivos JS e HTML.
-          #
-          # --exclude-dir=node_modules
-          # evita pesquisar dentro do diretório de dependências.
-          if grep -rln "TODO" \
-            --include="*.js" \
-            --include="*.html" \
-            --exclude-dir=node_modules \
-            . ; then
-
-            # ::error:: cria uma anotação de erro
-            # visível na interface do GitHub Actions.
-            echo "::error::Found a TODO marker — resolve it before merging."
-
-            # Código 1 significa que o comando falhou.
-            # Consequentemente, o step e o job serão marcados
-            # como failed.
-            exit 1
-
-          fi
-
-          # Executado somente quando nenhum TODO foi encontrado.
-          echo "No TODO markers found."
+    uses: ./.github/workflows/reusable-test.yml
 
 
   # ==========================================================
   # JOB 2 — DEPLOY
   # ==========================================================
-  # Responsável por publicar o site no GitHub Pages.
   deploy:
-
-    # Nome apresentado na interface do GitHub Actions.
     name: Deploy to GitHub Pages
-
-
-    # --------------------------------------------------------
-    # DEPENDÊNCIA ENTRE JOBS
-    # --------------------------------------------------------
-    # O deploy depende do job "test".
-    #
-    # Portanto:
-    #
-    # test
-    #   ↓
-    # deploy
-    #
-    # O deploy só poderá começar depois que "test" terminar
-    # com sucesso.
     needs: test
-
-
-    # --------------------------------------------------------
-    # CONDITION — QUANDO O DEPLOY PODE ACONTECER
-    # --------------------------------------------------------
-    # O deploy só será executado quando:
-    #
-    # 1. O evento for um PUSH
-    # 2. O push tiver sido feito na branch main
-    #
-    # Isso impede que um Pull Request publique o site.
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-
-    # Runner Linux utilizado para realizar o deploy.
+    if: startsWith(github.ref, 'refs/heads/release') && github.event_name == 'push'
     runs-on: ubuntu-latest
 
-
-    # --------------------------------------------------------
-    # PERMISSIONS DO JOB
-    # --------------------------------------------------------
-    # Aqui o job deploy sobrescreve/amplia as permissões
-    # definidas globalmente.
-    #
-    # O princípio de least privilege continua sendo aplicado:
-    # somente o job que precisa publicar recebe permissões
-    # adicionais.
     permissions:
-
-      # Permite ler o conteúdo do repositório.
       contents: read
-
-      # Permite escrever/publicar no GitHub Pages.
       pages: write
-
-      # Permite utilizar OIDC para autenticação.
-      #
-      # id-token: write é utilizado por algumas integrações
-      # que precisam de um token OIDC emitido pelo GitHub.
       id-token: write
 
-
-    # --------------------------------------------------------
-    # ENVIRONMENT — GITHUB PAGES
-    # --------------------------------------------------------
-    # Associa o deploy ao Environment chamado "github-pages".
-    #
-    # Environments podem ser utilizados para:
-    #
-    # - controlar deployments
-    # - adicionar protection rules
-    # - utilizar secrets específicos
-    # - registrar deployments
     environment:
-
-      # Nome do Environment.
       name: github-pages
-
-      # URL disponibilizada após o deployment.
-      #
-      # "steps.deployment.outputs.page_url"
-      # pega o output chamado "page_url" do step que possui
-      # id: deployment.
       url: ${{ steps.deployment.outputs.page_url }}
 
-
-    # --------------------------------------------------------
-    # STEPS DO DEPLOY
-    # --------------------------------------------------------
     steps:
-
-
-      # ------------------------------------------------------
-      # CHECKOUT
-      # ------------------------------------------------------
-      # Baixa o código do repositório para o runner.
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      # ------------------------------------------------------
-      # INJEÇÃO DE INFORMAÇÕES DO BUILD
-      # ------------------------------------------------------
-      # Substitui placeholders existentes no index.html
-      # por informações reais da execução do pipeline.
-      #
-      # Por exemplo, o HTML pode possuir:
-      #
-      # {{COMMIT_SHA}}
-      # {{RUN_NUMBER}}
-      # {{BUILD_DATE}}
-      #
-      # Esses valores serão substituídos durante o pipeline.
       - name: Inject build info into index.html
         run: |
-
-          # Pega os primeiros 7 caracteres do SHA do commit.
-          #
-          # Exemplo:
-          # 8f4c7a1
-          #
-          # GITHUB_SHA contém o SHA completo do commit.
           SHORT_SHA="${GITHUB_SHA::7}"
-
-
-          # Obtém a data/hora atual em UTC.
-          #
-          # Exemplo:
-          # 2026-09-22 22:35 UTC
           BUILD_DATE="$(date -u '+%Y-%m-%d %H:%M UTC')"
 
-
-          # Substitui {{COMMIT_SHA}} pelo SHA curto.
           sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/" index.html
-
-
-          # Substitui {{RUN_NUMBER}} pelo número da execução
-          # atual do GitHub Actions.
-          #
-          # github.run_number é um número incremental da execução.
           sed -i "s/{{RUN_NUMBER}}/${{ github.run_number }}/" index.html
-
-
-          # Substitui {{BUILD_DATE}} pela data do build.
           sed -i "s/{{BUILD_DATE}}/${BUILD_DATE}/" index.html
 
-
-      # ------------------------------------------------------
-      # CONFIGURAÇÃO DO GITHUB PAGES
-      # ------------------------------------------------------
-      # Configura o repositório para utilizar o GitHub Pages.
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
         with:
-
-          # Permite habilitar/configurar automaticamente o
-          # GitHub Pages caso ainda não tenha sido habilitado.
           enablement: true
 
-
-      # ------------------------------------------------------
-      # UPLOAD DO ARTIFACT
-      # ------------------------------------------------------
-      # Empacota os arquivos que serão publicados e envia
-      # para o armazenamento de artifacts do GitHub.
-      #
-      # Esse artifact posteriormente será consumido pelo
-      # deploy-pages.
       - name: Upload site as Pages artifact
         uses: actions/upload-pages-artifact@v3
-
         with:
-
-          # "." significa o diretório atual.
-          #
-          # Portanto, todo o conteúdo do repositório presente
-          # no runner será enviado como artifact do Pages.
           path: '.'
 
-
-      # ------------------------------------------------------
-      # DEPLOY NO GITHUB PAGES
-      # ------------------------------------------------------
-      # Publica o artifact criado no passo anterior.
       - name: Deploy to GitHub Pages
-
-        # Dá um identificador ao step.
-        #
-        # Isso permite referenciá-lo posteriormente através de:
-        #
-        # steps.deployment
-        #
-        # É utilizado acima para obter:
-        #
-        # steps.deployment.outputs.page_url
         id: deployment
-
-        # Action oficial responsável pelo deployment
-        # no GitHub Pages.
         uses: actions/deploy-pages@v4

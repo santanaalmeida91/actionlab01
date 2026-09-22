@@ -1,0 +1,65 @@
+# ============================================================
+# REUSABLE WORKFLOW — TEST
+# ============================================================
+# Este workflow não roda sozinho automaticamente.
+# Ele é chamado por outro workflow através de "uses:".
+#
+# Vantagem: se você criar outro pipeline no futuro (ex: um
+# workflow separado só para Pull Requests), pode reaproveitar
+# essa mesma lógica de teste sem duplicar código.
+name: Reusable — Build & Test
+
+on:
+  # "workflow_call" é o que transforma este arquivo em
+  # reutilizável — outros workflows podem chamá-lo com "uses:".
+  workflow_call:
+
+jobs:
+  test:
+    name: Build & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    # --------------------------------------------------------
+    # MATRIX — TESTAR EM MÚLTIPLAS VERSÕES DO NODE
+    # --------------------------------------------------------
+    # Agora ATIVA. O job roda 3 vezes em paralelo, uma para
+    # cada versão listada. Isso garante que seu código funciona
+    # tanto em versões mais antigas quanto na mais recente.
+    strategy:
+      # fail-fast: false garante que, se a versão 18 falhar,
+      # as versões 20 e 24 continuam rodando mesmo assim —
+      # você vê o resultado de todas, não só da primeira que falhou.
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Lint — fail if any TODO markers slipped in
+        run: |
+          if grep -rln "TODO" \
+            --include="*.js" \
+            --include="*.html" \
+            --exclude-dir=node_modules \
+            . ; then
+
+            echo "::error::Found a TODO marker — resolve it before merging."
+            exit 1
+
+          fi
+
+          echo "No TODO markers found."

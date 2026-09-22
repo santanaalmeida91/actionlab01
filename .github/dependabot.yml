@@ -1,0 +1,23 @@
+# ============================================================
+# DEPENDABOT — ATUALIZAÇÃO AUTOMÁTICA DE DEPENDÊNCIAS
+# ============================================================
+# Verifica periodicamente se há novas versões das suas
+# dependências (npm) e das GitHub Actions usadas (checkout,
+# setup-node, etc.) e abre Pull Requests automaticamente
+# quando encontra atualizações.
+version: 2
+updates:
+
+  # Dependências do npm (package.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Versões das Actions usadas nos workflows
+  # (ex: actions/checkout@v4 → avisa quando sair v5)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

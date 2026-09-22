@@ -1,0 +1,42 @@
+# ============================================================
+# CODEQL — ANÁLISE DE SEGURANÇA DO CÓDIGO
+# ============================================================
+# Escaneia o código em busca de vulnerabilidades conhecidas
+# (ex: injeção de código, uso inseguro de eval, XSS em JS).
+#
+# É um serviço nativo do GitHub, gratuito para repositórios
+# públicos. Os resultados aparecem em:
+# Security → Code scanning alerts
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Roda também automaticamente 1x por semana, mesmo sem push,
+  # para pegar vulnerabilidades descobertas depois do seu
+  # último commit (ex: uma falha nova encontrada numa lib).
+  schedule:
+    - cron: '0 3 * * 1'  # toda segunda-feira às 03:00 UTC
+
+permissions:
+  contents: read
+  security-events: write  # necessário para publicar os alertas
+
+jobs:
+  analyze:
+    name: Analyze (JavaScript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

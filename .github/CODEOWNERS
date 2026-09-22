@@ -1,0 +1,10 @@
+# ============================================================
+# CODEOWNERS
+# ============================================================
+# Define quem é automaticamente adicionado como reviewer
+# quando um Pull Request altera arquivos de determinada pasta.
+#
+# "*" significa "todo o repositório".
+# Você pode ter múltiplas linhas com pastas específicas,
+# ex: /src/ @outra-pessoa
+* @santanaalmeida91
