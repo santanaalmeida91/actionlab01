@@ -76,6 +76,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Auto-creates the Pages site on first run if it hasn't been
+          # enabled yet in Settings → Pages. Safe to leave on permanently.
+          enablement: true
 
       - name: Upload site as Pages artifact
         uses: actions/upload-pages-artifact@v3
