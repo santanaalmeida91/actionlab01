@@ -1,166 +1,266 @@
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================
+   Paleta inspirada nas cores reais de um diff de git:
+   verde para "ok" (linha adicionada), terracota para "warn"
+   (linha removida). Não é decoração aleatória — é o
+   vocabulário visual que já existe no dia a dia de quem
+   trabalha com CI/CD.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
 :root {
-  --bg: #0d1117;
-  --panel: #161b22;
-  --border: #30363d;
-  --text: #e6edf3;
-  --muted: #8b949e;
-  --accent: #58a6ff;
-  --accent-2: #a371f7;
-  --ok: #3fb950;
-  --warn: #d29922;
-  --idle: #6e7681;
-  --radius: 14px;
+  --bg: #0e1a1c;
+  --panel: #122124;
+  --border: #24393c;
+  --text: #eef3f0;
+  --muted: #7c9490;
+  --ok: #4f9d69;
+  --warn: #c97b63;
+  --idle: #4a5f5c;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius: 4px;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(88,166,255,0.15), transparent),
-    radial-gradient(1000px 500px at 100% 0%, rgba(163,113,247,0.12), transparent),
-    var(--bg);
+  font-family: var(--sans);
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
 }
 
 .wrap {
-  max-width: 780px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 48px 20px 80px;
+  padding: 56px 20px 80px;
 }
 
-.hero { text-align: center; margin-bottom: 32px; }
+/* --------------------------------------------------------
+   HERO — barra de "terminal" com o caminho do usuário,
+   como se fosse o prompt de um shell real.
+   -------------------------------------------------------- */
+.hero {
+  text-align: left;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
 
 .badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(88,166,255,0.12);
-  border: 1px solid rgba(88,166,255,0.35);
-  color: var(--accent);
+  font-family: var(--mono);
   font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 14px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.badge::before {
+  content: '$ ';
+  color: var(--ok);
 }
 
 .hero h1 {
-  font-size: 28px;
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
   margin: 0 0 10px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text);
+  letter-spacing: -0.01em;
 }
 
-.subtitle { color: var(--muted); font-size: 15px; line-height: 1.5; }
+.subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 52ch;
+}
 
 code {
-  background: rgba(110,118,129,0.15);
+  background: rgba(124, 148, 144, 0.12);
   padding: 2px 6px;
-  border-radius: 6px;
+  border-radius: var(--radius);
+  font-family: var(--mono);
   font-size: 0.9em;
 }
 
+/* --------------------------------------------------------
+   CARD — bloco de log, sem sombra, sem cantos muito
+   arredondados. Bordas finas fazem o trabalho de separar
+   conteúdo, não caixas flutuantes.
+   -------------------------------------------------------- */
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px 24px;
-  margin-bottom: 20px;
+  padding: 24px 26px;
+  margin-bottom: 18px;
 }
 
-.card h2 { margin-top: 0; font-size: 17px; }
-.hint { color: var(--muted); font-size: 13px; margin-top: -6px; }
+.card h2 {
+  margin-top: 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
 
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: -6px;
+}
+
+/* --------------------------------------------------------
+   COUNTDOWN — uma única linha de log, não quatro caixas
+   repetidas. O tempo é tratado como um dado que está sendo
+   impresso, não como um card de dashboard.
+   -------------------------------------------------------- */
 .countdown {
   display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin: 18px 0 10px;
+  align-items: baseline;
+  gap: 4px;
+  margin: 14px 0 6px;
+  font-family: var(--mono);
 }
 
 .unit {
-  background: rgba(88,166,255,0.08);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 16px;
-  min-width: 64px;
-  text-align: center;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .unit span {
-  display: block;
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--text);
 }
 
 .unit label {
-  display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 2px;
+}
+
+.unit:not(:last-child)::after {
+  content: ':';
+  color: var(--border);
+  font-size: 28px;
+  margin-left: 4px;
+  align-self: center;
 }
 
 .status-label {
-  text-align: center;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--accent-2);
-  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ok);
+  margin: 4px 0 0;
 }
 
+.status-label::after {
+  content: '_';
+  color: var(--ok);
+  margin-left: 2px;
+  animation: blink 1.05s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* --------------------------------------------------------
+   STATUS LIST — linhas de log, cada uma com uma tag entre
+   colchetes, como a saída real de um pipeline no terminal.
+   -------------------------------------------------------- */
 .status-grid {
   list-style: none;
   padding: 0;
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   display: grid;
-  gap: 10px;
+  gap: 2px;
+  font-family: var(--mono);
 }
 
 .status-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(110,118,129,0.06);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 14px;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(36, 57, 60, 0.6);
 }
 
-.status-item strong { display: block; font-size: 14px; }
-.status-item small { color: var(--muted); font-size: 12px; }
+.status-item:last-child { border-bottom: none; }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.status-item strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
 }
-.status-item.ok .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
-.status-item.warn .dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
-.status-item.idle .dot { background: var(--idle); }
 
-.btn {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  border: none;
-  color: white;
-  font-weight: 700;
-  font-size: 14px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.btn:active { transform: translateY(1px); }
-
-.build-info {
-  text-align: center;
+.status-item small {
   color: var(--muted);
   font-size: 12px;
-  margin-top: 30px;
 }
-.build-info .tiny { font-size: 11px; opacity: 0.7; }
+
+.dot {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-item.ok .dot::before { content: '[ok]'; color: var(--ok); }
+.status-item.warn .dot::before { content: '[warn]'; color: var(--warn); }
+.status-item.idle .dot::before { content: '[idle]'; color: var(--idle); }
+
+/* --------------------------------------------------------
+   BUTTON — estilo de comando confirmado, sólido, sem
+   gradiente. A cor "ok" reforça que a ação é positiva.
+   -------------------------------------------------------- */
+.btn {
+  background: var(--ok);
+  border: none;
+  color: #08130f;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------
+   BUILD INFO — rodapé de log, como a última linha impressa
+   por um script de deploy.
+   -------------------------------------------------------- */
+.build-info {
+  text-align: left;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  margin-top: 34px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.build-info .tiny {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-label::after { animation: none; }
+}
